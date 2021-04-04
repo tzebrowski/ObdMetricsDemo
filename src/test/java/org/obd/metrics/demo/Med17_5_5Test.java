@@ -73,6 +73,5 @@ public class Med17_5_5Test {
 		log.info("Rate:{}  ->  {}", measuredPID, ratePerSec);
 
 		Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
-
 	}
 }
