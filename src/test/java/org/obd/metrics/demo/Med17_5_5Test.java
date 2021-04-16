@@ -10,12 +10,8 @@ import org.obd.metrics.api.Adjustments;
 import org.obd.metrics.api.PidSpec;
 import org.obd.metrics.api.ProducerPolicy;
 import org.obd.metrics.api.Query;
-import org.obd.metrics.api.Workflow;
 import org.obd.metrics.api.WorkflowFactory;
 import org.obd.metrics.command.group.Mode1CommandGroup;
-import org.obd.metrics.connection.AdapterConnection;
-import org.obd.metrics.pid.PidDefinition;
-import org.obd.metrics.pid.PidRegistry;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,11 +20,11 @@ public class Med17_5_5Test {
 
 	@Test
 	public void test() throws IOException, InterruptedException, ExecutionException {
-		final AdapterConnection connection = BluetoothConnection.openConnection();
-		final DataCollector collector = new DataCollector();
+		var connection = BluetoothConnection.openConnection();
+		var collector = new DataCollector();
 
 		int commandFrequency = 6;
-		final Workflow workflow = WorkflowFactory
+		var workflow = WorkflowFactory
 		        .mode1()
 		        .pidSpec(PidSpec
 		                .builder()
@@ -37,7 +33,7 @@ public class Med17_5_5Test {
 		        .observer(collector)
 		        .initialize();
 
-		final Query query = Query.builder()
+		var query = Query.builder()
 		        .pid(6l) // Engine coolant temperature
 		        .pid(12l) // Intake manifold absolute pressure
 		        .pid(13l) // Engine RPM
@@ -47,7 +43,7 @@ public class Med17_5_5Test {
 		        .pid(15l) // Timing advance
 		        .build();
 
-		final Adjustments optional = Adjustments
+		var optional = Adjustments
 		        .builder()
 		        .adaptiveTiming(AdaptiveTimeoutPolicy
 		                .builder()
@@ -65,12 +61,10 @@ public class Med17_5_5Test {
 
 		WorkflowFinalizer.finalizeAfter(workflow, 15000);
 
-		final PidRegistry rpm = workflow.getPidRegistry();
+		var rpm = workflow.getPidRegistry().findBy(13l);
+		var ratePerSec = workflow.getStatisticsRegistry().getRatePerSec(rpm);
 
-		PidDefinition measuredPID = rpm.findBy(13l);
-		double ratePerSec = workflow.getStatisticsRegistry().getRatePerSec(measuredPID);
-
-		log.info("Rate:{}  ->  {}", measuredPID, ratePerSec);
+		log.info("Rate:{}  ->  {}", rpm, ratePerSec);
 
 		Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
 	}

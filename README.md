@@ -11,60 +11,51 @@
 
 ```java
 
-@Slf4j
-public class Med17_5_5Test {
+var connection = BluetoothConnection.openConnection();
+var collector = new DataCollector();
 
-    @Test
-    public void test() throws IOException, InterruptedException, ExecutionException {
-        final AdapterConnection connection = BluetoothConnection.openConnection();
-        final DataCollector collector = new DataCollector();
-
-        int commandFrequency = 6;
-        final Workflow workflow = WorkflowFactory
-                .mode1()
-                .pidSpec(PidSpec
-                        .builder()
-                        .initSequence(Mode1CommandGroup.INIT)
-                        .pidFile(Thread.currentThread().getContextClassLoader().getResource("mode01.json")).build())
-                .observer(collector)
-                .initialize();
-
-        final Query query = Query.builder()
-                .pid(6l) // Engine coolant temperature
-                .pid(12l) // Intake manifold absolute pressure
-                .pid(13l) // Engine RPM
-                .pid(16l) // Intake air temperature
-                .pid(18l) // Throttle position
-                .pid(14l) // Vehicle speed
-                .pid(15l) // Timing advance
-                .build();
-
-        final Adjustments optional = Adjustments
+int commandFrequency = 6;
+var workflow = WorkflowFactory
+        .mode1()
+        .pidSpec(PidSpec
                 .builder()
-                .adaptiveTiming(AdaptiveTimeoutPolicy
-                        .builder()
-                        .enabled(Boolean.TRUE)
-                        .checkInterval(5000)
-                        .commandFrequency(commandFrequency)
-                        .build())
-                .producerPolicy(ProducerPolicy.builder()
-                        .priorityQueueEnabled(Boolean.TRUE)
-                        .lowPriorityCommandFrequencyDelay(2000).build())
-                .batchEnabled(true)
-                .build();
+                .initSequence(Mode1CommandGroup.INIT)
+                .pidFile(Thread.currentThread().getContextClassLoader().getResource("mode01.json")).build())
+        .observer(collector)
+        .initialize();
 
-        workflow.start(connection, query, optional);
+var query = Query.builder()
+        .pid(6l) // Engine coolant temperature
+        .pid(12l) // Intake manifold absolute pressure
+        .pid(13l) // Engine RPM
+        .pid(16l) // Intake air temperature
+        .pid(18l) // Throttle position
+        .pid(14l) // Vehicle speed
+        .pid(15l) // Timing advance
+        .build();
 
-        WorkflowFinalizer.finalizeAfter(workflow, 15000);
+var optional = Adjustments
+        .builder()
+        .adaptiveTiming(AdaptiveTimeoutPolicy
+                .builder()
+                .enabled(Boolean.TRUE)
+                .checkInterval(5000)
+                .commandFrequency(commandFrequency)
+                .build())
+        .producerPolicy(ProducerPolicy.builder()
+                .priorityQueueEnabled(Boolean.TRUE)
+                .lowPriorityCommandFrequencyDelay(2000).build())
+        .batchEnabled(true)
+        .build();
 
-        final PidRegistry rpm = workflow.getPidRegistry();
+workflow.start(connection, query, optional);
 
-        PidDefinition measuredPID = rpm.findBy(13l);
-        double ratePerSec = workflow.getStatisticsRegistry().getRatePerSec(measuredPID);
+WorkflowFinalizer.finalizeAfter(workflow, 15000);
 
-        log.info("Rate:{}  ->  {}", measuredPID, ratePerSec);
+var rpm = workflow.getPidRegistry().findBy(13l);
+var ratePerSec = workflow.getStatisticsRegistry().getRatePerSec(rpm);
 
-        Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
-    }
-}
+log.info("Rate:{}  ->  {}", rpm, ratePerSec);
+
+Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
 ```
