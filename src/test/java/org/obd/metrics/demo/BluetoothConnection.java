@@ -8,6 +8,8 @@ import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
 import javax.microedition.io.StreamConnection;
 
+import org.obd.metrics.transport.AdapterConnection;
+
 import com.intel.bluetooth.MicroeditionConnector;
 
 import lombok.AccessLevel;
@@ -18,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-final class BluetoothConnection implements org.obd.metrics.connection.AdapterConnection {
+final class BluetoothConnection implements AdapterConnection {
 
 	final String adapterName;
 
@@ -36,11 +38,11 @@ final class BluetoothConnection implements org.obd.metrics.connection.AdapterCon
 		throw new IOException("Did not find the device addr");
 	}
 
-	static org.obd.metrics.connection.AdapterConnection openConnection() throws IOException {
+	static AdapterConnection openConnection() throws IOException {
 		return openConnection(findDeviceAddr("OBDII"));
 	}
 
-	static org.obd.metrics.connection.AdapterConnection openConnection(@NonNull String addr) {
+	static AdapterConnection openConnection(@NonNull String addr) {
 		try {
 			log.info("Connecting to: {}", addr);
 			return BluetoothConnection.builder().adapter(addr).build();
@@ -51,7 +53,7 @@ final class BluetoothConnection implements org.obd.metrics.connection.AdapterCon
 	}
 
 	@Builder()
-	public static org.obd.metrics.connection.AdapterConnection of(@NonNull final String adapter) throws IOException {
+	public static AdapterConnection of(@NonNull final String adapter) throws IOException {
 		return new BluetoothConnection(adapter);
 	}
 
