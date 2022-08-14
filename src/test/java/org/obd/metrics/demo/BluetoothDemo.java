@@ -20,11 +20,11 @@ import org.obd.metrics.diagnostic.RateType;
 import org.obd.metrics.pid.PidDefinition;
 import org.obd.metrics.pid.PidDefinitionRegistry;
 
-public class Demo {
-
+public class BluetoothDemo {
+	
 	@Test
 	public void test() throws IOException, InterruptedException, ExecutionException {
-		var connection = BluetoothConnection.openConnection();
+		var connection = BluetoothConnection.openConnection("OBDII");
 		var collector = new DataCollector();
 
 		final Pids pids = Pids
@@ -74,7 +74,7 @@ public class Demo {
 		
 		workflow.start(connection, query, init, optional);
 
-		WorkflowFinalizer.finalizeAfter500ms(workflow);
+		WorkflowFinalizer.finalizeAfter(workflow,25000);
 
 		final PidDefinitionRegistry rpm = workflow.getPidRegistry();
 

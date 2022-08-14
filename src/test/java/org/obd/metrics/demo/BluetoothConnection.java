@@ -38,10 +38,6 @@ final class BluetoothConnection implements AdapterConnection {
 		throw new IOException("Did not find the device addr");
 	}
 
-	static AdapterConnection openConnection() throws IOException {
-		return openConnection(findDeviceAddr("OBDII"));
-	}
-
 	static AdapterConnection openConnection(@NonNull String addr) {
 		try {
 			log.info("Connecting to: {}", addr);
