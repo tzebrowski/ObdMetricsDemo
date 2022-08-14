@@ -35,8 +35,8 @@ final Workflow workflow = Workflow
 final Query query = Query.builder()
 		.pid(7005l) 
 		.pid(7006l) 
-        .pid(7007l) 
-        .pid(7008l) 
+	      .pid(7007l) 
+	      .pid(7008l) 
 		.build();
 
 final Adjustments optional = Adjustments
