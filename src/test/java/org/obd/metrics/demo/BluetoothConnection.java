@@ -67,6 +67,7 @@ final class BluetoothConnection implements AdapterConnection {
 
 	@Override
 	public InputStream openInputStream() throws IOException {
+
 		return this.streamConnection.openInputStream();
 	}
 

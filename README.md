@@ -1,12 +1,16 @@
 # OBD Metrics Demo
 
+![CI](https://github.com/tzebrowski/ObdMetricsDemo/workflows/Build/badge.svg?branch=main)
+
+
 ## About
+
 
 `OBD Metrics Demo` is a simple project that demonstrates usage of the [OBD Metrics](https://github.com/tzebrowski/OBDMetrics "OBD Metrics")  java framework.
 
 
 
-## Med17_5_5Test
+## Giulia_2_0_GME_Test
 
 
 ```java
@@ -16,69 +20,59 @@ var collector = new DataCollector();
 
 final Pids pids = Pids
         .builder()
+        .resource(Thread.currentThread().getContextClassLoader().getResource("giulia_2.0_gme.json"))
         .resource(Thread.currentThread().getContextClassLoader().getResource("extra.json"))
         .resource(Thread.currentThread().getContextClassLoader().getResource("mode01.json"))
-        .resource(Thread.currentThread().getContextClassLoader().getResource("alfa.json")).build();
+		.build();
+
+int commandFrequency = 6;
+final Workflow workflow = Workflow
+        .instance()
+        .pids(pids)
+        .observer(collector)
+        .initialize();
+
+final Query query = Query.builder()
+		.pid(7005l) 
+		.pid(7006l) 
+        .pid(7007l) 
+        .pid(7008l) 
+		.build();
+
+final Adjustments optional = Adjustments
+        .builder()
+        .adaptiveTiming(AdaptiveTimeoutPolicy
+                .builder()
+                .enabled(Boolean.TRUE)
+                .checkInterval(5000)
+                .commandFrequency(commandFrequency)
+                .build())
+        .producerPolicy(ProducerPolicy.builder()
+                .priorityQueueEnabled(Boolean.TRUE)
+                .build())
+        .cacheConfig(CacheConfig.builder().resultCacheEnabled(Boolean.FALSE).build())
+        .batchEnabled(Boolean.FALSE)
+        .build();
 
 final Init init = Init.builder()
         .delay(1000)
         .header(Header.builder().mode("22").header("DA10F1").build())
-        .header(Header.builder().mode("01").header("7DF").build())
-        .protocol(Protocol.CAN_11)
+		.header(Header.builder().mode("01").header("DB33F1").build())
+        .protocol(Protocol.CAN_29)
+        .fetchDeviceProperties(Boolean.TRUE)
+        .fetchSupportedPids(Boolean.TRUE)	
         .sequence(DefaultCommandGroup.INIT).build();
-
-final Workflow workflow = Workflow
-        .instance()
-        .observer(collector)
-        .pids(pids)
-        .initialize();
-
-final Query query = Query.builder()
-        .pid(13l) // Engine RPM
-        .pid(12l) // Boost
-        .pid(18l) // Throttle position
-        .pid(14l) // Vehicle speed
-        .pid(5l) //  Engine load
-        .pid(7l)  // Short fuel trim
-        .build();
-
-int commandFrequency = 10;
-final Adjustments optional = Adjustments
-        .builder()
-        .cacheConfig(
-                CacheConfig.builder()
-                        .storeResultCacheOnDisk(Boolean.TRUE)
-                        .resultCacheFilePath("./result_cache.json")
-                        .resultCacheEnabled(Boolean.TRUE).build())
-        .adaptiveTiming(AdaptiveTimeoutPolicy
-                .builder()
-                .enabled(Boolean.TRUE)
-                .checkInterval(2000)
-                .commandFrequency(9)
-                .build())
-        .producerPolicy(ProducerPolicy.builder()
-                .priorityQueueEnabled(Boolean.TRUE)
-                .lowPriorityCommandFrequencyDelay(2000).build())
-        .batchEnabled(true)
-        .build();
-
-
 
 workflow.start(connection, query, init, optional);
 
+WorkflowFinalizer.finalizeAfter500ms(workflow);
 
-WorkflowFinalizer.finalizeAfter(workflow, 15000);
+final PidDefinitionRegistry rpm = workflow.getPidRegistry();
 
-final PidDefinitionRegistry pidRegistry = workflow.getPidRegistry();
-final PidDefinition rpm = pidRegistry.findBy(13l);
-final Diagnostics diagnostics = workflow.getDiagnostics();
-final Histogram rpmHist = diagnostics.histogram().findBy(rpm);
-Assertions.assertThat(rpmHist.getMin()).isGreaterThan(500);
+PidDefinition measuredPID = rpm.findBy(13l);
+double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, measuredPID).get().getValue();
 
-
-final double ratePerSec = diagnostics.rate().findBy(RateType.MEAN, rpm).get().getValue();
-
-log.info("Rate:{}  ->  {}", rpm, ratePerSec);
+log.info("Rate:{}  ->  {}", measuredPID, ratePerSec);
 
 Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
 ```
