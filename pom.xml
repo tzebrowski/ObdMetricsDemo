@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>io.github.tzebrowski</groupId>
 			<artifactId>obd-metrics</artifactId>
-			<version>6.15.0</version>
+			<version>9.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.dropwizard.metrics</groupId>

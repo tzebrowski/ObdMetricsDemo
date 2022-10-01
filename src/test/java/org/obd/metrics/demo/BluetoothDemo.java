@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.obd.metrics.api.Workflow;
 import org.obd.metrics.api.model.AdaptiveTimeoutPolicy;
 import org.obd.metrics.api.model.Adjustments;
-import org.obd.metrics.api.model.CacheConfig;
+import org.obd.metrics.api.model.CachePolicy;
 import org.obd.metrics.api.model.Init;
 import org.obd.metrics.api.model.Init.Header;
 import org.obd.metrics.api.model.Init.Protocol;
@@ -49,8 +49,10 @@ public class BluetoothDemo {
 				.build();
 
 		final Adjustments optional = Adjustments
-		        .builder()
-		        .adaptiveTiming(AdaptiveTimeoutPolicy
+				.builder()
+				.vehicleCapabilitiesReadingEnabled(Boolean.TRUE)
+		        .vehicleMetadataReadingEnabled(Boolean.TRUE)
+				.adaptiveTiming(AdaptiveTimeoutPolicy
 		                .builder()
 		                .enabled(Boolean.TRUE)
 		                .checkInterval(5000)
@@ -59,7 +61,7 @@ public class BluetoothDemo {
 		        .producerPolicy(ProducerPolicy.builder()
 		                .priorityQueueEnabled(Boolean.TRUE)
 		                .build())
-		        .cacheConfig(CacheConfig.builder().resultCacheEnabled(Boolean.FALSE).build())
+		        .cacheConfig(CachePolicy.builder().resultCacheEnabled(Boolean.FALSE).build())
 		        .batchEnabled(Boolean.FALSE)
 		        .build();
 
@@ -68,8 +70,6 @@ public class BluetoothDemo {
 		        .header(Header.builder().mode("22").header("DA10F1").build())
 				.header(Header.builder().mode("01").header("DB33F1").build())
 		        .protocol(Protocol.CAN_29)
-		        .fetchDeviceProperties(Boolean.TRUE)
-		        .fetchSupportedPids(Boolean.TRUE)	
 		        .sequence(DefaultCommandGroup.INIT).build();
 		
 		workflow.start(connection, query, init, optional);
