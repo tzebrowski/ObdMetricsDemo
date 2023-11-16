@@ -35,20 +35,20 @@ var query = Query.builder()
 var optional = Adjustments
         .builder()
         .adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
-                .builder()
-                .enabled(Boolean.TRUE)
-                .checkInterval(1)
-                .commandFrequency(commandFrequency)
-                .build())
+            .builder()
+            .enabled(Boolean.TRUE)
+            .checkInterval(1)
+            .commandFrequency(commandFrequency)
+            .build())
         .producerPolicy(ProducerPolicy.builder()
-                .priorityQueueEnabled(Boolean.TRUE)
-                .build())
+            .priorityQueueEnabled(Boolean.TRUE)
+            .build())
         .cachePolicy(CachePolicy.builder().resultCacheEnabled(false).build())
         .batchPolicy(
-        		BatchPolicy
-        		.builder()
-        		.responseLengthEnabled(Boolean.FALSE)
-        		.enabled(Boolean.TRUE).build())
+    		BatchPolicy
+    		.builder()
+    		.responseLengthEnabled(Boolean.FALSE)
+    		.enabled(Boolean.TRUE).build())
         .build();
 
 workflow.start(connection, query, Init.DEFAULT, optional);
@@ -99,28 +99,28 @@ var optional = Adjustments
 		.vehicleCapabilitiesReadingEnabled(Boolean.TRUE)
         .vehicleMetadataReadingEnabled(Boolean.TRUE)
 		.adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
-                .builder()
-                .enabled(Boolean.TRUE)
-                .checkInterval(5000)
-                .commandFrequency(commandFrequency)
-                .build())
+            .builder()
+            .enabled(Boolean.TRUE)
+            .checkInterval(5000)
+            .commandFrequency(commandFrequency)
+            .build())
         .producerPolicy(ProducerPolicy.builder()
-                .priorityQueueEnabled(Boolean.TRUE)
-                .build())
+            .priorityQueueEnabled(Boolean.TRUE)
+            .build())
         .cachePolicy(CachePolicy.builder().resultCacheEnabled(Boolean.FALSE).build())
         .batchPolicy(
-        		BatchPolicy
-        		.builder()
-        		.responseLengthEnabled(Boolean.FALSE)
-        		.enabled(Boolean.FALSE).build())
+    		BatchPolicy
+    		.builder()
+    		.responseLengthEnabled(Boolean.FALSE)
+    		.enabled(Boolean.FALSE).build())
         .build();
 
 var init = Init.builder()
-        .delayAfterInit(1000)
-        .header(Header.builder().mode("22").header("DA10F1").build())
-		.header(Header.builder().mode("01").header("DB33F1").build())
-        .protocol(Protocol.CAN_29)
-        .sequence(DefaultCommandGroup.INIT).build();
+    .delayAfterInit(1000)
+    .header(Header.builder().mode("22").header("DA10F1").build())
+	.header(Header.builder().mode("01").header("DB33F1").build())
+    .protocol(Protocol.CAN_29)
+    .sequence(DefaultCommandGroup.INIT).build();
 
 workflow.start(connection, query, init, optional);
 
