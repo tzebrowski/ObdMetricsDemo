@@ -18,8 +18,6 @@ import org.obd.metrics.api.model.ProducerPolicy;
 import org.obd.metrics.api.model.Query;
 import org.obd.metrics.command.group.DefaultCommandGroup;
 import org.obd.metrics.diagnostic.RateType;
-import org.obd.metrics.pid.PidDefinition;
-import org.obd.metrics.pid.PidDefinitionRegistry;
 
 public class BluetoothDemo {
 	
@@ -36,20 +34,20 @@ public class BluetoothDemo {
 				.build();
 		
 		int commandFrequency = 6;
-		final Workflow workflow = Workflow
+		var workflow = Workflow
 		        .instance()
 		        .pids(pids)
 		        .observer(collector)
 		        .initialize();
 
-		final Query query = Query.builder()
-				.pid(7005l) 
+		var query = Query.builder()
+				.pid(7005l) //Intake Pressure
 				.pid(7006l) 
 		        .pid(7007l) 
 		        .pid(7008l) 
 				.build();
 
-		final Adjustments optional = Adjustments
+		var optional = Adjustments
 				.builder()
 				.vehicleCapabilitiesReadingEnabled(Boolean.TRUE)
 		        .vehicleMetadataReadingEnabled(Boolean.TRUE)
@@ -70,7 +68,7 @@ public class BluetoothDemo {
 		        		.enabled(Boolean.FALSE).build())
 		        .build();
 
-		final Init init = Init.builder()
+		var init = Init.builder()
 		        .delayAfterInit(1000)
 		        .header(Header.builder().mode("22").header("DA10F1").build())
 				.header(Header.builder().mode("01").header("DB33F1").build())
@@ -81,10 +79,10 @@ public class BluetoothDemo {
 
 		WorkflowFinalizer.finalizeAfter(workflow,25000);
 
-		final PidDefinitionRegistry rpm = workflow.getPidRegistry();
+		var registry = workflow.getPidRegistry();
 
-		PidDefinition measuredPID = rpm.findBy(13l);
-		double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, measuredPID).get().getValue();
+		var intakePressure = registry.findBy(7005l);
+		double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, intakePressure).get().getValue();
 
 		Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
 	}

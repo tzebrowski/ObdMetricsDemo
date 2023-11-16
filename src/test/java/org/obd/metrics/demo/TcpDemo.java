@@ -15,8 +15,6 @@ import org.obd.metrics.api.model.Pids;
 import org.obd.metrics.api.model.ProducerPolicy;
 import org.obd.metrics.api.model.Query;
 import org.obd.metrics.diagnostic.RateType;
-import org.obd.metrics.pid.PidDefinition;
-import org.obd.metrics.pid.PidDefinitionRegistry;
 import org.obd.metrics.transport.TcpAdapterConnection;
 
 public class TcpDemo {
@@ -27,20 +25,20 @@ public class TcpDemo {
 		var collector = new DataCollector();
 
 		int commandFrequency = 6;
-		final Workflow workflow = Workflow
+		var workflow = Workflow
 		        .instance()
 		        .pids(Pids.DEFAULT)
 		        .observer(collector)
 		        .initialize();
 
-		final Query query = Query.builder()
+		var query = Query.builder()
 		        .pid(13l) // Engine RPM
 		        .pid(16l) // Intake air temperature
 		        .pid(18l) // Throttle position
 		        .pid(14l) // Vehicle speed
 		        .build();
 
-		final Adjustments optional = Adjustments
+		var optional = Adjustments
 		        .builder()
 		        .adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
 		                .builder()
@@ -63,10 +61,10 @@ public class TcpDemo {
 
 		WorkflowFinalizer.finalizeAfter(workflow, 25000);
 
-		final PidDefinitionRegistry rpm = workflow.getPidRegistry();
+		var registry = workflow.getPidRegistry();
 
-		PidDefinition measuredPID = rpm.findBy(13l);
-		double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, measuredPID).get().getValue();
+		var rpm = registry.findBy(13l);
+		double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, rpm).get().getValue();
 
 		Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
 	}

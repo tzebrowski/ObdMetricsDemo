@@ -19,20 +19,20 @@ var connection = TcpAdapterConnection.of("192.168.0.10", 35000);
 var collector = new DataCollector();
 
 int commandFrequency = 6;
-final Workflow workflow = Workflow
+var workflow = Workflow
         .instance()
         .pids(Pids.DEFAULT)
         .observer(collector)
         .initialize();
 
-final Query query = Query.builder()
+var query = Query.builder()
         .pid(13l) // Engine RPM
         .pid(16l) // Intake air temperature
         .pid(18l) // Throttle position
         .pid(14l) // Vehicle speed
         .build();
 
-final Adjustments optional = Adjustments
+var optional = Adjustments
         .builder()
         .adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
                 .builder()
@@ -55,10 +55,10 @@ workflow.start(connection, query, Init.DEFAULT, optional);
 
 WorkflowFinalizer.finalizeAfter(workflow, 25000);
 
-final PidDefinitionRegistry rpm = workflow.getPidRegistry();
+var registry = workflow.getPidRegistry();
 
-PidDefinition measuredPID = rpm.findBy(13l);
-double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, measuredPID).get().getValue();
+var rpm = registry.findBy(13l);
+double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, rpm).get().getValue();
 
 Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
 
@@ -81,23 +81,23 @@ final Pids pids = Pids
 		.build();
 
 int commandFrequency = 6;
-final Workflow workflow = Workflow
+var workflow = Workflow
         .instance()
         .pids(pids)
         .observer(collector)
         .initialize();
 
-final Query query = Query.builder()
-		.pid(7005l) 
+var query = Query.builder()
+		.pid(7005l) //Intake Pressure
 		.pid(7006l) 
-       .pid(7007l) 
-       .pid(7008l) 
+        .pid(7007l) 
+        .pid(7008l) 
 		.build();
 
-final Adjustments optional = Adjustments
+var optional = Adjustments
 		.builder()
 		.vehicleCapabilitiesReadingEnabled(Boolean.TRUE)
-       .vehicleMetadataReadingEnabled(Boolean.TRUE)
+        .vehicleMetadataReadingEnabled(Boolean.TRUE)
 		.adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
                 .builder()
                 .enabled(Boolean.TRUE)
@@ -115,10 +115,10 @@ final Adjustments optional = Adjustments
         		.enabled(Boolean.FALSE).build())
         .build();
 
-final Init init = Init.builder()
+var init = Init.builder()
         .delayAfterInit(1000)
         .header(Header.builder().mode("22").header("DA10F1").build())
-		 .header(Header.builder().mode("01").header("DB33F1").build())
+		.header(Header.builder().mode("01").header("DB33F1").build())
         .protocol(Protocol.CAN_29)
         .sequence(DefaultCommandGroup.INIT).build();
 
@@ -126,10 +126,10 @@ workflow.start(connection, query, init, optional);
 
 WorkflowFinalizer.finalizeAfter(workflow,25000);
 
-final PidDefinitionRegistry rpm = workflow.getPidRegistry();
+var registry = workflow.getPidRegistry();
 
-PidDefinition measuredPID = rpm.findBy(13l);
-double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, measuredPID).get().getValue();
+var intakePressure = registry.findBy(7005l);
+double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, intakePressure).get().getValue();
 
 Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
 ```
