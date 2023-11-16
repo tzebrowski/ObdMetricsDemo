@@ -6,8 +6,8 @@
 ## About
 
 
-`OBD Metrics Demo` is a simple project that demonstrates usage of the [OBD Metrics](https://github.com/tzebrowski/OBDMetrics "OBD Metrics")  java framework.
-
+`OBD Metrics Demo` is a simple project that demonstrates usage of the [OBD Metrics](https://github.com/tzebrowski/OBDMetrics "OBD Metrics") java framework.
+It uses `obd-metrics 9.23.5`
 
 
 ## Tcp connector demo
@@ -34,7 +34,7 @@ final Query query = Query.builder()
 
 final Adjustments optional = Adjustments
         .builder()
-        .adaptiveTiming(AdaptiveTimeoutPolicy
+        .adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
                 .builder()
                 .enabled(Boolean.TRUE)
                 .checkInterval(1)
@@ -43,8 +43,12 @@ final Adjustments optional = Adjustments
         .producerPolicy(ProducerPolicy.builder()
                 .priorityQueueEnabled(Boolean.TRUE)
                 .build())
-        .cacheConfig(CachePolicy.builder().resultCacheEnabled(false).build())
-        .batchEnabled(true)
+        .cachePolicy(CachePolicy.builder().resultCacheEnabled(false).build())
+        .batchPolicy(
+        		BatchPolicy
+        		.builder()
+        		.responseLengthEnabled(Boolean.FALSE)
+        		.enabled(Boolean.TRUE).build())
         .build();
 
 workflow.start(connection, query, Init.DEFAULT, optional);
@@ -62,7 +66,6 @@ Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
 
 ## Bluetooth connector demo
 Full example can be found [example](https://github.com/tzebrowski/ObdMetricsDemo/blob/main/src/test/java/org/obd/metrics/demo/BluetoothDemo.java "example")  
-
 
 
 ```java
@@ -87,44 +90,46 @@ final Workflow workflow = Workflow
 final Query query = Query.builder()
 		.pid(7005l) 
 		.pid(7006l) 
-	      	.pid(7007l) 
-	      	.pid(7008l) 
+       .pid(7007l) 
+       .pid(7008l) 
 		.build();
 
 final Adjustments optional = Adjustments
-        .builder()
-        .vehicleCapabilitiesReadingEnabled(Boolean.TRUE)
-        .vehicleMetadataReadingEnabled(Boolean.TRUE)
-        .adaptiveTiming(AdaptiveTimeoutPolicy
-        	.builder()
-        	.enabled(Boolean.TRUE)
-        	.checkInterval(5000)
-        	.commandFrequency(commandFrequency)
-        	.build())
+		.builder()
+		.vehicleCapabilitiesReadingEnabled(Boolean.TRUE)
+       .vehicleMetadataReadingEnabled(Boolean.TRUE)
+		.adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
+                .builder()
+                .enabled(Boolean.TRUE)
+                .checkInterval(5000)
+                .commandFrequency(commandFrequency)
+                .build())
         .producerPolicy(ProducerPolicy.builder()
-            .priorityQueueEnabled(Boolean.TRUE)
-            .build())
-        .cacheConfig(CachePolicy.builder().resultCacheEnabled(Boolean.FALSE).build())
-        .batchEnabled(Boolean.FALSE)
+                .priorityQueueEnabled(Boolean.TRUE)
+                .build())
+        .cachePolicy(CachePolicy.builder().resultCacheEnabled(Boolean.FALSE).build())
+        .batchPolicy(
+        		BatchPolicy
+        		.builder()
+        		.responseLengthEnabled(Boolean.FALSE)
+        		.enabled(Boolean.FALSE).build())
         .build();
 
 final Init init = Init.builder()
-        .delay(1000)
+        .delayAfterInit(1000)
         .header(Header.builder().mode("22").header("DA10F1").build())
-	 .header(Header.builder().mode("01").header("DB33F1").build())
+		 .header(Header.builder().mode("01").header("DB33F1").build())
         .protocol(Protocol.CAN_29)
         .sequence(DefaultCommandGroup.INIT).build();
 
 workflow.start(connection, query, init, optional);
 
-WorkflowFinalizer.finalizeAfter500ms(workflow);
+WorkflowFinalizer.finalizeAfter(workflow,25000);
 
 final PidDefinitionRegistry rpm = workflow.getPidRegistry();
 
 PidDefinition measuredPID = rpm.findBy(13l);
 double ratePerSec = workflow.getDiagnostics().rate().findBy(RateType.MEAN, measuredPID).get().getValue();
-
-log.info("Rate:{}  ->  {}", measuredPID, ratePerSec);
 
 Assertions.assertThat(ratePerSec).isGreaterThanOrEqualTo(commandFrequency);
 ```
