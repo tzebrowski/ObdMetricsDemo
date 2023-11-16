@@ -90,14 +90,14 @@ var workflow = Workflow
 var query = Query.builder()
 		.pid(7005l) //Intake Pressure
 		.pid(7006l) 
-        .pid(7007l) 
-        .pid(7008l) 
+       	.pid(7007l) 
+       	.pid(7008l) 
 		.build();
 
 var optional = Adjustments
 		.builder()
 		.vehicleCapabilitiesReadingEnabled(Boolean.TRUE)
-        .vehicleMetadataReadingEnabled(Boolean.TRUE)
+      	.vehicleMetadataReadingEnabled(Boolean.TRUE)
 		.adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
             .builder()
             .enabled(Boolean.TRUE)
