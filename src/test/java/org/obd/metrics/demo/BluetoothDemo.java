@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.obd.metrics.api.Workflow;
 import org.obd.metrics.api.model.AdaptiveTimeoutPolicy;
 import org.obd.metrics.api.model.Adjustments;
+import org.obd.metrics.api.model.BatchPolicy;
 import org.obd.metrics.api.model.CachePolicy;
 import org.obd.metrics.api.model.Init;
 import org.obd.metrics.api.model.Init.Header;
@@ -52,7 +53,7 @@ public class BluetoothDemo {
 				.builder()
 				.vehicleCapabilitiesReadingEnabled(Boolean.TRUE)
 		        .vehicleMetadataReadingEnabled(Boolean.TRUE)
-				.adaptiveTiming(AdaptiveTimeoutPolicy
+				.adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
 		                .builder()
 		                .enabled(Boolean.TRUE)
 		                .checkInterval(5000)
@@ -61,12 +62,16 @@ public class BluetoothDemo {
 		        .producerPolicy(ProducerPolicy.builder()
 		                .priorityQueueEnabled(Boolean.TRUE)
 		                .build())
-		        .cacheConfig(CachePolicy.builder().resultCacheEnabled(Boolean.FALSE).build())
-		        .batchEnabled(Boolean.FALSE)
+		        .cachePolicy(CachePolicy.builder().resultCacheEnabled(Boolean.FALSE).build())
+		        .batchPolicy(
+		        		BatchPolicy
+		        		.builder()
+		        		.responseLengthEnabled(Boolean.FALSE)
+		        		.enabled(Boolean.FALSE).build())
 		        .build();
 
 		final Init init = Init.builder()
-		        .delay(1000)
+		        .delayAfterInit(1000)
 		        .header(Header.builder().mode("22").header("DA10F1").build())
 				.header(Header.builder().mode("01").header("DB33F1").build())
 		        .protocol(Protocol.CAN_29)

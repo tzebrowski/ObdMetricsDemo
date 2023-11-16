@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.obd.metrics.api.Workflow;
 import org.obd.metrics.api.model.AdaptiveTimeoutPolicy;
 import org.obd.metrics.api.model.Adjustments;
+import org.obd.metrics.api.model.BatchPolicy;
 import org.obd.metrics.api.model.CachePolicy;
 import org.obd.metrics.api.model.Init;
 import org.obd.metrics.api.model.Pids;
@@ -41,7 +42,7 @@ public class TcpDemo {
 
 		final Adjustments optional = Adjustments
 		        .builder()
-		        .adaptiveTiming(AdaptiveTimeoutPolicy
+		        .adaptiveTimeoutPolicy(AdaptiveTimeoutPolicy
 		                .builder()
 		                .enabled(Boolean.TRUE)
 		                .checkInterval(1)
@@ -50,8 +51,12 @@ public class TcpDemo {
 		        .producerPolicy(ProducerPolicy.builder()
 		                .priorityQueueEnabled(Boolean.TRUE)
 		                .build())
-		        .cacheConfig(CachePolicy.builder().resultCacheEnabled(false).build())
-		        .batchEnabled(true)
+		        .cachePolicy(CachePolicy.builder().resultCacheEnabled(false).build())
+		        .batchPolicy(
+		        		BatchPolicy
+		        		.builder()
+		        		.responseLengthEnabled(Boolean.FALSE)
+		        		.enabled(Boolean.TRUE).build())
 		        .build();
 
 		workflow.start(connection, query, Init.DEFAULT, optional);
