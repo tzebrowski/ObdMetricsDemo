@@ -17,7 +17,7 @@
 			<name>Apache License 2.0</name>
 		</license>
 	</licenses>
-
+	
 
 	<contributors>
 		<contributor>
@@ -45,7 +45,21 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
-
+	
+	<repositories>
+		<repository>
+			<id>sonatypeSnapshots</id>
+			<name>Sonatype Snapshots</name>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</repository>
+	</repositories>
+	
 
 	<dependencies>
 		<dependency>
