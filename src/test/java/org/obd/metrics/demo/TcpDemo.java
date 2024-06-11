@@ -15,6 +15,7 @@ import org.obd.metrics.api.model.Pids;
 import org.obd.metrics.api.model.ProducerPolicy;
 import org.obd.metrics.api.model.Query;
 import org.obd.metrics.diagnostic.RateType;
+import org.obd.metrics.test.WorkflowFinalizer;
 import org.obd.metrics.transport.TcpAdapterConnection;
 
 public class TcpDemo {

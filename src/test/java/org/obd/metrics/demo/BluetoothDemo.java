@@ -18,6 +18,7 @@ import org.obd.metrics.api.model.ProducerPolicy;
 import org.obd.metrics.api.model.Query;
 import org.obd.metrics.command.group.DefaultCommandGroup;
 import org.obd.metrics.diagnostic.RateType;
+import org.obd.metrics.test.WorkflowFinalizer;
 
 public class BluetoothDemo {
 	
